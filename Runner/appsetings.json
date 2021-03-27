@@ -1,0 +1,5 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "server=FENRIRUS\\SQLEXPRESS;database=ContactsDB;user=Fenrirus2;password=cos;"
+  }
+}
