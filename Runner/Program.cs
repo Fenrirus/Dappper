@@ -12,8 +12,8 @@ namespace Runner
 
         private static IContactRepository CreateRepository()
         {
-            //return new ContactRepository(config.GetConnectionString("DefaultConnection"));
-            return new ContactRepositoryContrib(config.GetConnectionString("DefaultConnection"));
+            return new ContactRepository(config.GetConnectionString("DefaultConnection"));
+            //return new ContactRepositoryContrib(config.GetConnectionString("DefaultConnection"));
         }
 
         private static void Delete_Entity(int id)
@@ -34,7 +34,7 @@ namespace Runner
         {
             var repository = CreateRepository();
 
-            var contract = repository.Find(id);
+            var contract = repository.FullContact(id);
 
             Console.WriteLine("****Get Contract****");
             contract.Output();
@@ -50,7 +50,7 @@ namespace Runner
 
             Console.WriteLine($"Count {contacts.Count}");
 
-            Debug.Assert(contacts.Count == 13);
+            Debug.Assert(contacts.Count == 6);
             contacts.Output();
         }
 
@@ -75,7 +75,18 @@ namespace Runner
                 Title = "Developer",
             };
 
-            repository.Add(contract);
+            var address = new Address
+            {
+                AddressType = "Dom",
+                StreetAddress = "Kaukazka",
+                City = "Gdańsk",
+                StateId = 1,
+                PostalCode = "09200",
+            };
+
+            contract.Addresses.Add(address);
+            //repository.Add(contract);
+            repository.Save(contract);
 
             Debug.Assert(contract.Id != 0);
             Console.WriteLine("***********Contract Inserted***********");
@@ -91,22 +102,31 @@ namespace Runner
             Find_shoud_retraive_existing_entity(id);
             Modified_Should_Update_Entity(id);
             Delete_Entity(id);
+
+            // var repository = CreateRepository();
+            // var mj = repository.FullContact(1);
+            // mj.Output();
         }
 
         private static void Modified_Should_Update_Entity(int id)
         {
             var repository = CreateRepository();
 
-            var contact = repository.Find(id);
+            //var contact = repository.Find(id);
+            var contact = repository.FullContact(id);
             contact.LastName = "Kruz";
-            repository.Update(contact);
+            contact.Addresses[0].City = "Gdynia";
+            //repository.Update(contact);
+            repository.Save(contact);
 
             var repository2 = CreateRepository();
-            var modified = repository2.Find(id);
+            //var modified = repository2.Find(id);
+            var modified = repository2.FullContact(id);
 
             Console.WriteLine("***********Contract Modified***********");
             modified.Output();
             Debug.Assert(modified.LastName == "Kruz");
+            Debug.Assert(modified.Addresses[0].City == "Gdynia");
         }
     }
 }

@@ -8,9 +8,13 @@ namespace DataLayer
 
         Contact Find(int id);
 
+        Contact FullContact(int id);
+
         List<Contact> GetAll();
 
         void Remove(int id);
+
+        void Save(Contact contact);
 
         Contact Update(Contact contact);
     }
