@@ -1,14 +1,43 @@
 ﻿using DataLayer;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Runner
 {
     internal class Program
     {
         private static IConfigurationRoot config;
+
+        private static async Task aMain(string[] args)
+        {
+            Initialise();
+            await Get_All_Async_Should_Be_6();
+        }
+
+        private static void Bulk_insert_should_insert_4_rows()
+        {
+            // arrange
+            var repository = CreateRepositoryEx();
+            var contacts = new List<Contact>
+            {
+                new Contact { FirstName = "Charles", LastName = "Barkley" },
+                new Contact { FirstName = "Scottie", LastName = "Pippen" },
+                new Contact { FirstName = "Tim", LastName = "Duncan" },
+                new Contact { FirstName = "Patrick", LastName = "Ewing" }
+            };
+
+            // act
+            var rowsAffected = repository.BulkInsertContacts(contacts);
+
+            // assert
+            Console.WriteLine($"Rows inserted: {rowsAffected}");
+            Debug.Assert(rowsAffected == 4);
+        }
 
         private static IContactRepository CreateRepository()
         {
@@ -37,6 +66,16 @@ namespace Runner
             Console.WriteLine("***********Contract Deleted***********");
         }
 
+        private static void DynymicSupport()
+        {
+            var repository = CreateRepositoryEx();
+
+            var contacts = repository.DynymicGetById(1, 2, 3);
+
+            Debug.Assert(contacts.Count == 3);
+            contacts.Output();
+        }
+
         private static void Find_shoud_retraive_existing_entity(int id)
         {
             var repository = CreateRepository();
@@ -49,6 +88,18 @@ namespace Runner
             Debug.Assert(contract.LastName == "K");
         }
 
+        private static async Task Get_All_Async_Should_Be_6()
+        {
+            var repository = CreateRepositoryEx();
+
+            var contacts = await repository.GetAllAsync();
+
+            Console.WriteLine($"Count {contacts.Count}");
+
+            Debug.Assert(contacts.Count == 6);
+            contacts.Output();
+        }
+
         private static void Get_All_Should_Be_6()
         {
             var repository = CreateRepository();
@@ -59,6 +110,20 @@ namespace Runner
 
             Debug.Assert(contacts.Count == 6);
             contacts.Output();
+        }
+
+        private static void Get_all_should_return_6_results_with_addresses()
+        {
+            var repository = CreateRepositoryEx();
+
+            // act
+            var contacts = repository.GetAllContactsWithAddresses();
+
+            // assert
+            Console.WriteLine($"Count: {contacts.Count}");
+            contacts.Output();
+            Debug.Assert(contacts.Count == 6);
+            Debug.Assert(contacts.First().Addresses.Count == 2);
         }
 
         private static void Initialise()
@@ -125,6 +190,9 @@ namespace Runner
             // mj.Output();
 
             ListSupport();
+            DynymicSupport();
+            Bulk_insert_should_insert_4_rows();
+            Get_all_should_return_6_results_with_addresses();
         }
 
         private static void Modified_Should_Update_Entity(int id)
