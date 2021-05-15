@@ -12,8 +12,15 @@ namespace Runner
 
         private static IContactRepository CreateRepository()
         {
-            return new ContactRepository(config.GetConnectionString("DefaultConnection"));
+            //return new ContactRepository(config.GetConnectionString("DefaultConnection"));
             //return new ContactRepositoryContrib(config.GetConnectionString("DefaultConnection"));
+
+            return new ContactRepositorySP(config.GetConnectionString("DefaultConnection"));
+        }
+
+        private static ContactRepositoryEx CreateRepositoryEx()
+        {
+            return new ContactRepositoryEx(config.GetConnectionString("DefaultConnection"));
         }
 
         private static void Delete_Entity(int id)
@@ -94,10 +101,20 @@ namespace Runner
             return contract.Id;
         }
 
+        private static void ListSupport()
+        {
+            var repository = CreateRepositoryEx();
+
+            var contacts = repository.GetById(1, 2, 3);
+
+            Debug.Assert(contacts.Count == 3);
+            contacts.Output();
+        }
+
         private static void Main(string[] args)
         {
             Initialise();
-            Get_All_Should_Be_6();
+            //Get_All_Should_Be_6();
             var id = Insert_should_assign_identity_to_new_entity();
             Find_shoud_retraive_existing_entity(id);
             Modified_Should_Update_Entity(id);
@@ -106,6 +123,8 @@ namespace Runner
             // var repository = CreateRepository();
             // var mj = repository.FullContact(1);
             // mj.Output();
+
+            ListSupport();
         }
 
         private static void Modified_Should_Update_Entity(int id)
