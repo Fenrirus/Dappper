@@ -36,12 +36,21 @@ namespace DataLayer
 
         public void Remove(int id)
         {
-            throw new System.NotImplementedException();
+            db.Execute("DELETE FROM Contacts WHERE Id = @Id", new { id });
         }
 
         public Contact Update(Contact contact)
         {
-            throw new System.NotImplementedException();
+            var sql = "UPDATE Contacts " +
+            "SET[FirstName] = @FirstName" +
+            ",[LastName] = @LastName" +
+            ",[Email] = @Email" +
+            ",[Company] = @company" +
+            ",[Title] = @Title " +
+            "Where id = @Id";
+
+            db.Execute(sql, contact);
+            return contact;
         }
     }
 }

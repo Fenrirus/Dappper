@@ -12,7 +12,22 @@ namespace Runner
 
         private static IContactRepository CreateRepository()
         {
-            return new ContactRepository(config.GetConnectionString("DefaultConnection"));
+            //return new ContactRepository(config.GetConnectionString("DefaultConnection"));
+            return new ContactRepositoryContrib(config.GetConnectionString("DefaultConnection"));
+        }
+
+        private static void Delete_Entity(int id)
+        {
+            var repository = CreateRepository();
+
+            repository.Remove(id);
+
+            var repository2 = CreateRepository();
+            var deleted = repository2.Find(id);
+
+            Debug.Assert(deleted == null);
+
+            Console.WriteLine("***********Contract Deleted***********");
         }
 
         private static void Find_shoud_retraive_existing_entity(int id)
@@ -35,7 +50,7 @@ namespace Runner
 
             Console.WriteLine($"Count {contacts.Count}");
 
-            Debug.Assert(contacts.Count == 6);
+            Debug.Assert(contacts.Count == 13);
             contacts.Output();
         }
 
@@ -71,9 +86,27 @@ namespace Runner
         private static void Main(string[] args)
         {
             Initialise();
-            //Get_All_Should_Be_6();
+            Get_All_Should_Be_6();
             var id = Insert_should_assign_identity_to_new_entity();
             Find_shoud_retraive_existing_entity(id);
+            Modified_Should_Update_Entity(id);
+            Delete_Entity(id);
+        }
+
+        private static void Modified_Should_Update_Entity(int id)
+        {
+            var repository = CreateRepository();
+
+            var contact = repository.Find(id);
+            contact.LastName = "Kruz";
+            repository.Update(contact);
+
+            var repository2 = CreateRepository();
+            var modified = repository2.Find(id);
+
+            Console.WriteLine("***********Contract Modified***********");
+            modified.Output();
+            Debug.Assert(modified.LastName == "Kruz");
         }
     }
 }
